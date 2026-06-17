@@ -2248,27 +2248,62 @@ function calcPunteggioSquadra(sq, gior) {
   const titolariFinali = [...titolari];
   let cambi = 0;
   const panchinaCopy = [...panchina];
+  let moduloEffettivo = modulo;
+  const ROLE_ORDER = ['D','C','A']; // fallback order if same-role sub unavailable (P never auto-shifted)
+
+  function hasVoto(playerStr) {
+    if(!playerStr) return false;
+    const [name] = playerStr.split("|");
+    const v = votiG[safeKey(name)];
+    return v && v.voto;
+  }
 
   for(let i=0;i<11;i++){
     const t = titolariFinali[i];
     if(!t) continue;
-    const [name] = t.split("|");
-    const v = votiG[safeKey(name)];
-    if(!v || !v.voto) {
-      if(cambi < 3){
-        for(let j=0;j<panchinaCopy.length;j++){
-          if(!panchinaCopy[j]) continue;
-          const [bname] = panchinaCopy[j].split("|");
-          const bv = votiG[safeKey(bname)];
-          if(bv && bv.voto){
-            titolariFinali[i] = panchinaCopy[j];
-            panchinaCopy.splice(j,1);
-            cambi++;
-            break;
-          }
-        }
+    if(hasVoto(t)) continue; // titolare ok, no sub needed
+
+    if(cambi >= 3) continue; // max 3 substitutions reached
+
+    const [, absentRole] = t.split("|");
+
+    // STEP 1: try same-role substitute from bench first
+    let subIdx = panchinaCopy.findIndex(p => {
+      if(!p || !hasVoto(p)) return false;
+      const [, pRole] = p.split("|");
+      return pRole === absentRole;
+    });
+
+    if(subIdx === -1) {
+      // STEP 2: no same-role substitute available — fall back to next role
+      // in PPDDCCAA order among players actually with votes, causing a formation shift
+      for(const fallbackRole of ROLE_ORDER) {
+        if(fallbackRole === absentRole) continue;
+        subIdx = panchinaCopy.findIndex(p => {
+          if(!p || !hasVoto(p)) return false;
+          const [, pRole] = p.split("|");
+          return pRole === fallbackRole;
+        });
+        if(subIdx !== -1) break;
       }
     }
+
+    if(subIdx !== -1) {
+      titolariFinali[i] = panchinaCopy[subIdx];
+      panchinaCopy.splice(subIdx, 1);
+      cambi++;
+    }
+  }
+
+  // Recompute effective modulo based on actual roles fielded (for difesa modifier accuracy)
+  const roleCounts = {P:0,D:0,C:0,A:0};
+  titolariFinali.forEach(t => {
+    if(!t) return;
+    const [, r] = t.split("|");
+    if(roleCounts[r] !== undefined) roleCounts[r]++;
+  });
+  if(roleCounts.D + roleCounts.C + roleCounts.A === 10) {
+    moduloEffettivo = `${roleCounts.D}-${roleCounts.C}-${roleCounts.A}`;
   }
 
   let tot = 0;
@@ -2283,7 +2318,7 @@ function calcPunteggioSquadra(sq, gior) {
     detail.push({name, fv});
   });
 
-  const modDif = calcModDifesa(modulo, titolariFinali, votiG);
+  const modDif = calcModDifesa(moduloEffettivo, titolariFinali, votiG);
   tot += modDif;
 
   return {tot: Math.round(tot*100)/100, detail, modDif, cambi};
