@@ -572,7 +572,6 @@ input.voto-bonus { width: 36px; margin-bottom: 0; padding: 3px; text-align: cent
 }
 .classifica-scroll::-webkit-scrollbar { height: 4px; }
 .classifica-scroll::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.25); border-radius: 2px; }
-.classifica-scroll table { min-width: 480px; }
 .girone-block-ui:hover {
   border-color: rgba(255,215,0,0.2);
   box-shadow: 0 8px 30px rgba(0,0,0,0.3);
@@ -1794,7 +1793,7 @@ function renderGironi() {
     const tblWrap = document.createElement("div");
     tblWrap.className = "classifica-scroll";
     const tbl = document.createElement("table");
-    tbl.innerHTML = `<thead><tr><th>#</th><th>Squadra</th><th>G</th><th>V</th><th>P</th><th>S</th><th>GF</th><th>GA</th><th>DR</th><th>Pt</th><th style="color:#4ade80">Fanta</th></tr></thead><tbody id="tbody-${g}"></tbody>`;
+    tbl.innerHTML = `<thead><tr><th>#</th><th>Squadra</th><th>GF</th><th>GA</th><th>DR</th><th>Pt</th><th style="color:#4ade80">Fanta</th></tr></thead><tbody id="tbody-${g}"></tbody>`;
     tblWrap.appendChild(tbl);
     block.appendChild(tblWrap);
     root.appendChild(block);
@@ -1812,7 +1811,6 @@ function updateClassifica(g) {
   body.innerHTML = ranked.map((r,i)=>`<tr>
     <td><span style="display:inline-flex;width:20px;height:20px;border-radius:50%;background:#${pc[i]};color:#${fc[i]};align-items:center;justify-content:center;font-size:10px;font-weight:700">${i+1}</span></td>
     <td style="font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,0.9)">${r.t}</td>
-    <td>${r.pl}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
     <td>${r.gf}</td><td>${r.ga}</td><td>${r.dr>0?'+'+r.dr:r.dr}</td>
     <td style="font-weight:700;color:white">${r.p}</td>
     <td style="color:#FFD700;font-weight:700">${r.pf>0?r.pf:'-'}</td>
