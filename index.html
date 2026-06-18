@@ -1752,7 +1752,7 @@ function renderGironi() {
         sb.style.cssText = "display:flex;align-items:center;gap:3px;flex-shrink:0";
         const mkInp = (key, w, bg) => {
           const i = document.createElement("input");
-          i.type="text"; i.inputMode="decimal"; i.placeholder="0";
+          i.type="text"; i.inputMode="decimal"; i.placeholder="-";
           i.style.cssText = `width:${w}px;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 2px;text-align:center;font-size:12px;font-weight:600;background:${bg};color:white;margin-bottom:0`;
           i.value = st.scores[key] !== undefined ? st.scores[key] : "";
           i.addEventListener("change", e => {
@@ -1793,7 +1793,7 @@ function updateClassifica(g) {
   const body = document.getElementById("tbody-"+g);
   if(!body) return;
   const ranked = gironiData[g].teams.map(t=>({t,...teamStats(g,t)}))
-    .sort((a,b)=>b.p-a.p||b.dr-a.dr||b.gf-a.gf||b.pf-a.pf);
+    .sort((a,b)=>b.p-a.p||b.pf-a.pf||b.gf-a.gf||b.dr-a.dr);
   const pc = ["FAC775","c8c8c4","F5C4B3","eeeeee"];
   const fc = ["412402","2C2C2A","712B13","888888"];
   body.innerHTML = ranked.map((r,i)=>`<tr>
