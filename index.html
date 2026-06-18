@@ -1753,7 +1753,7 @@ function renderGironi() {
         const mkInp = (key, w, bg) => {
           const i = document.createElement("input");
           i.type="text"; i.inputMode="decimal"; i.placeholder="-";
-          i.style.cssText = `width:${w}px;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 2px;text-align:center;font-size:12px;font-weight:600;background:${bg};color:white;margin-bottom:0`;
+          i.style.cssText = `width:${w}px;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:4px 2px;text-align:center;font-size:13px;font-weight:700;background:${bg};color:white;margin-bottom:0`;
           i.value = st.scores[key] !== undefined ? st.scores[key] : "";
           i.addEventListener("change", e => {
             st.scores[key] = e.target.value;
@@ -1773,7 +1773,7 @@ function renderGironi() {
         pr.style.cssText = "display:flex;align-items:center;gap:5px;justify-content:center";
         const pl2 = document.createElement("span"); pl2.style.cssText="font-size:10px;color:rgba(255,255,255,0.3)"; pl2.textContent="Punti fanta:";
         const pv = document.createElement("span"); pv.style.cssText="font-size:10px;color:rgba(255,255,255,0.2)"; pv.textContent="vs";
-        pr.append(pl2, mkInp(m.id+"ph",52,"rgba(0,80,60,0.4)"), pv, mkInp(m.id+"pa",52,"rgba(0,80,60,0.4)"));
+        pr.append(pl2, mkInp(m.id+"ph",62,"rgba(0,80,60,0.4)"), pv, mkInp(m.id+"pa",62,"rgba(0,80,60,0.4)"));
         card.appendChild(pr); block.appendChild(card);
       });
     });
