@@ -370,6 +370,8 @@ select option { background: #0d0d2b; color: white; }
 
 /* ─── TABLE ─── */
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.classifica-scroll table { font-size: 11px; }
+.classifica-scroll th, .classifica-scroll td { padding: 6px 5px; }
 
 th {
   padding: 8px 8px;
@@ -563,6 +565,14 @@ input.voto-bonus { width: 36px; margin-bottom: 0; padding: 3px; text-align: cent
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
+.classifica-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.classifica-scroll::-webkit-scrollbar { height: 4px; }
+.classifica-scroll::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.25); border-radius: 2px; }
+.classifica-scroll table { min-width: 480px; }
 .girone-block-ui:hover {
   border-color: rgba(255,215,0,0.2);
   box-shadow: 0 8px 30px rgba(0,0,0,0.3);
@@ -1781,9 +1791,12 @@ function renderGironi() {
     const clbl = document.createElement("div");
     clbl.style.cssText = "font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:.07em;text-transform:uppercase;padding:7px 12px 3px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.08)";
     clbl.textContent = "Classifica"; block.appendChild(clbl);
+    const tblWrap = document.createElement("div");
+    tblWrap.className = "classifica-scroll";
     const tbl = document.createElement("table");
     tbl.innerHTML = `<thead><tr><th>#</th><th>Squadra</th><th>G</th><th>V</th><th>P</th><th>S</th><th>GF</th><th>GA</th><th>DR</th><th>Pt</th><th style="color:#4ade80">Fanta</th></tr></thead><tbody id="tbody-${g}"></tbody>`;
-    block.appendChild(tbl);
+    tblWrap.appendChild(tbl);
+    block.appendChild(tblWrap);
     root.appendChild(block);
     updateClassifica(g);
   });
