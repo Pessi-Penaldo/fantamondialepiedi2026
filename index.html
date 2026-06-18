@@ -570,8 +570,9 @@ input.voto-bonus { width: 36px; margin-bottom: 0; padding: 3px; text-align: cent
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-.classifica-scroll::-webkit-scrollbar { height: 4px; }
-.classifica-scroll::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.25); border-radius: 2px; }
+.classifica-scroll::-webkit-scrollbar { height: 5px; }
+.classifica-scroll::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.35); border-radius: 3px; }
+.classifica-scroll table { min-width: 460px; }
 .girone-block-ui:hover {
   border-color: rgba(255,215,0,0.2);
   box-shadow: 0 8px 30px rgba(0,0,0,0.3);
@@ -733,15 +734,17 @@ input.voto-bonus { width: 36px; margin-bottom: 0; padding: 3px; text-align: cent
 .bracket-pts-lbl { font-size: 9px; color: rgba(255,255,255,0.3); }
 
 .bracket-pts-row input {
-  width: 50px;
+  width: 58px;
   border: 1px solid rgba(0,255,150,0.2);
   border-radius: 5px;
-  padding: 2px 4px;
+  padding: 3px 4px;
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 700;
   background: rgba(0,255,150,0.05);
   color: #4ade80;
   margin-bottom: 0;
+  white-space: nowrap;
 }
 
 .bracket-connector {
@@ -1708,7 +1711,7 @@ function teamStats(g, t) {
     const nh=parseInt(gh), na=parseInt(ga2);
     if(isNaN(nh)||isNaN(na)||gh===undefined||ga2===undefined) return;
     pl++;
-    const ph=parseFloat(st.scores[m.id+"ph"])||0, pa=parseFloat(st.scores[m.id+"pa"])||0;
+    const ph=numIT(st.scores[m.id+"ph"]), pa=numIT(st.scores[m.id+"pa"]);
     if(t===m.h){gf+=nh;ga+=na;pf+=ph;if(nh>na){p+=3;w++;}else if(nh===na){p+=1;d++;}else l++;}
     if(t===m.a){gf+=na;ga+=nh;pf+=pa;if(na>nh){p+=3;w++;}else if(nh===na){p+=1;d++;}else l++;}
   });
@@ -1793,7 +1796,7 @@ function renderGironi() {
     const tblWrap = document.createElement("div");
     tblWrap.className = "classifica-scroll";
     const tbl = document.createElement("table");
-    tbl.innerHTML = `<thead><tr><th>#</th><th>Squadra</th><th>GF</th><th>GA</th><th>DR</th><th>Pt</th><th style="color:#4ade80">Fanta</th></tr></thead><tbody id="tbody-${g}"></tbody>`;
+    tbl.innerHTML = `<thead><tr><th>#</th><th>Squadra</th><th>G</th><th>V</th><th>P</th><th>S</th><th>GF</th><th>GA</th><th>DR</th><th>Pt</th><th style="color:#4ade80">Fanta</th></tr></thead><tbody id="tbody-${g}"></tbody>`;
     tblWrap.appendChild(tbl);
     block.appendChild(tblWrap);
     root.appendChild(block);
@@ -1811,9 +1814,10 @@ function updateClassifica(g) {
   body.innerHTML = ranked.map((r,i)=>`<tr>
     <td><span style="display:inline-flex;width:20px;height:20px;border-radius:50%;background:#${pc[i]};color:#${fc[i]};align-items:center;justify-content:center;font-size:10px;font-weight:700">${i+1}</span></td>
     <td style="font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,0.9)">${r.t}</td>
+    <td>${r.pl}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
     <td>${r.gf}</td><td>${r.ga}</td><td>${r.dr>0?'+'+r.dr:r.dr}</td>
     <td style="font-weight:700;color:white">${r.p}</td>
-    <td style="color:#FFD700;font-weight:700">${r.pf>0?r.pf:'-'}</td>
+    <td style="color:#FFD700;font-weight:700;white-space:nowrap">${r.pf>0?r.pf:'-'}</td>
   </tr>`).join("");
 }
 
@@ -1835,7 +1839,7 @@ function renderRoseContent() {
   const players = rosa.players || [];
   const byRuolo = {P:[],D:[],C:[],A:[]};
   players.forEach(p => { if(byRuolo[p.ruolo]) byRuolo[p.ruolo].push(p); });
-  const totCred = players.reduce((s,p)=>s+(parseFloat(p.crediti)||0),0);
+  const totCred = players.reduce((s,p)=>s+numIT(p.crediti),0);
   const content = document.getElementById("rose-content");
   content.innerHTML = `
     <div class="card">
@@ -1866,11 +1870,12 @@ function renderRoseContent() {
 }
 
 function safeKey(s) { return s.replace(/[^a-zA-Z0-9_]/g,"-"); }
+function numIT(v) { return parseFloat(String(v||"").replace(",",".")) || 0; }
 
 window.addPlayer = function(sq) {
   const name = document.getElementById("add-name").value.trim();
   const ruolo = document.getElementById("add-ruolo").value;
-  const crediti = parseFloat(document.getElementById("add-cred").value)||0;
+  const crediti = numIT(document.getElementById("add-cred").value);
   if(!name) return;
   const key = safeKey(sq);
   const rosa = JSON.parse(JSON.stringify(st.rose[key] || {players:[]}));
@@ -2108,7 +2113,7 @@ window.saveVoti = function() {
   const votiObj = {};
   players.forEach(p => {
     const pk = safeKey(p.name);
-    const get = f => { const el=document.getElementById(`v_${pk}_${f}`); return el ? (parseFloat(el.value)||0) : 0; };
+    const get = f => { const el=document.getElementById(`v_${pk}_${f}`); return el ? numIT(el.value) : 0; };
     votiObj[pk] = {
       name: p.name, ruolo: p.ruolo,
       voto: get("voto"), gol: get("gol"), ass: get("ass"), pi: get("pi"),
@@ -2193,7 +2198,7 @@ function formatTs(ts) {
 // ── CALCOLO PUNTEGGIO ──
 function calcFantavoto(v) {
   if(!v || !v.voto) return 0;
-  let pts = parseFloat(v.voto) || 0;
+  let pts = numIT(v.voto);
   pts += (v.gol||0)*3;
   pts += (v.ass||0)*1;
   if(v.ruolo === 'P') {
@@ -2221,7 +2226,7 @@ function calcModDifesa(modulo, titolari, votiG) {
   const voti4 = difPlayers.map(t => {
     const [name] = t.split("|");
     const v = votiG[safeKey(name)];
-    return v ? (parseFloat(v.voto)||0) : 0;
+    return v ? numIT(v.voto) : 0;
   }).filter(v=>v>0).sort((a,b)=>b-a).slice(0,4);
   if(voti4.length < 4) return 0;
   const media = voti4.reduce((s,v)=>s+v,0)/4;
@@ -2511,7 +2516,7 @@ function getWinner(matchId) {
   if(isNaN(nh)||isNaN(na)) return null;
   if(nh > na) return m.home;
   if(na > nh) return m.away;
-  const ph = parseFloat(m.ph)||0, pa = parseFloat(m.pa)||0;
+  const ph = numIT(m.ph), pa = numIT(m.pa);
   return ph >= pa ? m.home : m.away;
 }
 
@@ -2523,7 +2528,7 @@ function getLoser(matchId) {
   if(isNaN(nh)||isNaN(na)) return null;
   if(nh > na) return m.away;
   if(na > nh) return m.home;
-  const ph = parseFloat(m.ph)||0, pa = parseFloat(m.pa)||0;
+  const ph = numIT(m.ph), pa = numIT(m.pa);
   return ph >= pa ? m.away : m.home;
 }
 
@@ -2636,10 +2641,10 @@ function getCreditiSquadra(sq) {
   let extra = 0;
   const fase = sqData.fase_qualificata;
   if(fase==='QF') extra=20; else if(fase==='SF') extra=30; else if(fase==='F') extra=50;
-  const rimborsi = parseFloat(sqData.rimborsi)||0;
+  const rimborsi = numIT(sqData.rimborsi);
   const rosa = st.rose[key] || {players:[]};
   const players = rosa.players || [];
-  const costoRosa = players.reduce((s,p)=>s+(parseFloat(p.crediti)||0),0);
+  const costoRosa = players.reduce((s,p)=>s+numIT(p.crediti),0);
   return { base, extra, rimborsi, costoRosa, disponibili: base+extra+rimborsi-costoRosa, fase };
 }
 
@@ -2684,8 +2689,8 @@ function renderMercatoContent() {
           ${ps.map(p => {
             const sk = safeKey(p.name);
             const sv = svincoli[sk] || {};
-            const rimb100 = parseFloat(p.crediti)||0;
-            const rimb50 = Math.ceil((parseFloat(p.crediti)||0)/2);
+            const rimb100 = numIT(p.crediti);
+            const rimb50 = Math.ceil(numIT(p.crediti)/2);
             return `<div class="svincolo-row">
               <span class="ruolo-badge rb-${r}" style="display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;font-size:9px;font-weight:800">${r}</span>
               <span class="svincolo-name" style="${sv.svincolato?'text-decoration:line-through;opacity:0.5':''}">${p.name}</span>
@@ -2716,7 +2721,7 @@ window.svincolaGiocatore = function(sq, playerKey, rimborso, eliminato) {
   if(!st.mercato) st.mercato={};
   if(!st.mercato[key]) st.mercato[key]={};
   if(!st.mercato[key].svincoli) st.mercato[key].svincoli={};
-  const rimborsiAttuali = parseFloat(st.mercato[key].rimborsi)||0;
+  const rimborsiAttuali = numIT(st.mercato[key].rimborsi);
   st.mercato[key].svincoli[playerKey] = {svincolato:true, rimborso, eliminato};
   st.mercato[key].rimborsi = rimborsiAttuali + rimborso;
   saveKey(`mercato/${key}/svincoli/${playerKey}`, {svincolato:true, rimborso, eliminato});
@@ -2727,7 +2732,7 @@ window.svincolaGiocatore = function(sq, playerKey, rimborso, eliminato) {
 window.annullaSvincolo = function(sq, playerKey, rimborso) {
   const key = safeKey(sq);
   if(!st.mercato||!st.mercato[key]) return;
-  const rimborsiAttuali = parseFloat(st.mercato[key].rimborsi)||0;
+  const rimborsiAttuali = numIT(st.mercato[key].rimborsi);
   st.mercato[key].svincoli[playerKey] = {svincolato:false};
   st.mercato[key].rimborsi = Math.max(0, rimborsiAttuali-rimborso);
   saveKey(`mercato/${key}/svincoli/${playerKey}`, {svincolato:false});
