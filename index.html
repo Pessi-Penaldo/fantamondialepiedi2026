@@ -1845,7 +1845,7 @@ function renderRoseContent() {
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
         <h3>${sq}</h3>
-        <span style="font-size:12px;color:#888">${players.length}/25 giocatori · <b style="color:${totCred>250?'#993C1D':'#0F6E56'}">${totCred}</b>/250 crediti</span>
+        <span style="font-size:12px;color:#888">${players.length}/19 giocatori</span>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem">
         <div style="flex:2;min-width:140px"><label>Nome giocatore</label><input id="add-name" placeholder="es. Cristiano Ronaldo"></div>
@@ -1883,8 +1883,7 @@ window.addPlayer = function(sq) {
   const byR = players.filter(p=>p.ruolo===ruolo).length;
   if(byR >= RUOLI_LIMITS[ruolo]) { alert(`Limite ${ruolo} raggiunto (${RUOLI_LIMITS[ruolo]})`); return; }
   if(players.length >= 25) { alert("Rosa piena (25 giocatori)"); return; }
-  const tot = players.reduce((s,p)=>s+(p.crediti||0),0);
-  if(tot+crediti > 250) { alert("Budget superato!"); return; }
+
   players.push({name,ruolo,crediti});
   rosa.players = players;
   st.rose[key] = rosa;
